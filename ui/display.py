@@ -208,6 +208,21 @@ def render_diagnosis_dashboard(res: Dict[str, Any], language: str = "en"):
     with tab_trace:
         st.markdown("#### 🧠 " + ("అధికారిక AWS స్ట్రాండ్స్ ఏజెంట్ టూల్స్ అమలు వివరాలు" if is_te else "Official AWS Strands Agent Tool Execution Trace"))
         st.caption("Inspect the actual tools invoked by the Strands Agent loop on Amazon Bedrock.")
+
+        # Display AWS Bedrock Integration Status
+        bedrock_status = res.get("aws_bedrock_status", {})
+        if bedrock_status.get("bedrock_active"):
+            st.success(f"🟢 **Amazon Bedrock Reasoning Active** (Model: `{bedrock_status.get('model_id')}`, Region: `{bedrock_status.get('region')}`)")
+            if bedrock_status.get("narrative"):
+                st.markdown("##### 📝 Bedrock Executive Agronomic Narrative:")
+                st.info(bedrock_status.get("narrative"))
+        else:
+            st.warning(f"🟡 **Amazon Bedrock Fallback Mode** ({bedrock_status.get('error_type', 'Credentials Required')})")
+            st.caption(bedrock_status.get("message", "Using deterministic FAO-56 scientific engine."))
+            if bedrock_status.get("remediation"):
+                st.caption(f"👉 **Setup**: {bedrock_status.get('remediation')}")
+
+        st.markdown("##### 🔧 Registered Strands Agent Tools Execution Log:")
         for trace in res.get("tool_traces", []):
             with st.expander(f"🔧 Tool: `{trace.get('tool')}` | Status: {trace.get('status')}", expanded=True):
                 st.json(trace)
@@ -215,3 +230,4 @@ def render_diagnosis_dashboard(res: Dict[str, Any], language: str = "en"):
     # 6. Responsible AI & Agricultural Safety Disclaimer
     disclaimer_text = recom.get("safety_disclaimer", "")
     st.markdown(f'<div class="disclaimer-card">{disclaimer_text}</div>', unsafe_allow_html=True)
+

@@ -186,3 +186,4 @@ def render_weather_charts(weather_data: Dict[str, Any], crit_temp_c: float = 35.
             margin=dict(l=10, r=10, t=35, b=10)
         )
         st.plotly_chart(fig_water, use_container_width=True)
+

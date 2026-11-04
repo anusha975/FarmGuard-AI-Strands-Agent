@@ -19,12 +19,20 @@ from dotenv import load_dotenv
 # Load local environment variables (.env)
 load_dotenv()
 
+import botocore.exceptions
 from strands import Agent
 from strands.models.bedrock import BedrockModel, DEFAULT_BEDROCK_MODEL_ID, DEFAULT_BEDROCK_REGION
 from tools.weather import get_weather_forecast
 from tools.soil import analyze_soil_moisture
 from tools.drought import calculate_drought_risk
 from tools.farming_advice import get_farming_recommendations
+from farmguard.aws_bedrock import (
+    check_aws_credentials_safe,
+    check_bedrock_access,
+    get_bedrock_model_id,
+    get_aws_region,
+    SUPPORTED_BEDROCK_MODELS
+)
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)-7s | [%(name)s] %(message)s")
 logger = logging.getLogger("FarmGuardAgent")
@@ -231,6 +239,15 @@ def run_farmguard_pipeline(profile: Dict[str, Any]) -> Dict[str, Any]:
     else:
         overall_status = "NORMAL" if language == "en" else "సాధారణం (Normal)"
 
+    # 7. Bedrock Executive Narrative & AWS Health Status
+    bedrock_status = synthesize_bedrock_advisory(
+        profile=profile,
+        weather_data=weather_data,
+        soil_data=soil_data,
+        drought_data=drought_data,
+        language=language
+    )
+
     return {
         "status": "success",
         "is_simulated": weather_data.get("is_simulated", False),
@@ -242,8 +259,79 @@ def run_farmguard_pipeline(profile: Dict[str, Any]) -> Dict[str, Any]:
         "soil": soil_data,
         "drought": drought_data,
         "recommendations": recom_data,
+        "aws_bedrock_status": bedrock_status,
         "tool_traces": tool_traces
     }
+
+
+def synthesize_bedrock_advisory(
+    profile: Dict[str, Any],
+    weather_data: Dict[str, Any],
+    soil_data: Dict[str, Any],
+    drought_data: Dict[str, Any],
+    language: str = "en"
+) -> Dict[str, Any]:
+    """
+    Attempt Bedrock LLM synthesis via Strands BedrockModel.
+    Handles NoCredentialsError, ClientError, EndpointConnectionError gracefully.
+    """
+    safe_creds = check_aws_credentials_safe()
+    if not safe_creds["configured"]:
+        return {
+            "bedrock_active": False,
+            "error_type": "NoCredentialsError",
+            "message": "AWS Bedrock credentials not detected in environment or .env. Operating in high-reliability Agronomic Science & Tools fallback mode.",
+            "remediation": "To activate Amazon Bedrock Claude 3.5 Sonnet, configure .env with AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY."
+        }
+    
+    try:
+        model_id = get_bedrock_model_id()
+        region = get_aws_region()
+        m = BedrockModel(region_name=region, model_id=model_id)
+        cvi = drought_data.get("composite_vulnerability_index", 30.0)
+        crop = profile.get("crop_name", "Crop")
+        stage = profile.get("growth_stage", "Flowering")
+        loc = profile.get("location_name", "Target Farm")
+        
+        prompt = (
+            f"As FarmGuard AI agro-climatologist, provide a concise 2-paragraph executive climate resilience summary for "
+            f"a smallholder farmer cultivating {crop} ({stage}) at {loc}. Composite Vulnerability Index is {cvi}%. "
+            f"Soil status: CWSI={soil_data.get('crop_water_stress_index_cwsi')}, Deficit={soil_data.get('irrigation_needed_mm')}mm. "
+            f"Drought status: {drought_data.get('drought_risk_level')}, Rain forecast: {weather_data.get('total_precipitation_7d_mm')}mm. "
+            f"Provide response in {'Telugu (తెలుగు)' if language == 'te' else 'English'}."
+        )
+        agent = Agent(model=m, tools=[], system_prompt=SYSTEM_PROMPT)
+        resp = agent(prompt)
+        return {
+            "bedrock_active": True,
+            "status": "success",
+            "model_id": model_id,
+            "region": region,
+            "narrative": str(resp)
+        }
+    except botocore.exceptions.NoCredentialsError:
+        return {
+            "bedrock_active": False,
+            "error_type": "NoCredentialsError",
+            "message": "AWS credentials not detected by boto3.",
+            "remediation": "Set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY in .env."
+        }
+    except botocore.exceptions.ClientError as e:
+        code = e.response.get("Error", {}).get("Code", "ClientError")
+        msg = e.response.get("Error", {}).get("Message", str(e))
+        return {
+            "bedrock_active": False,
+            "error_type": code,
+            "message": f"Amazon Bedrock ClientError ({code}): {msg}",
+            "remediation": "Ensure your IAM role has 'bedrock:InvokeModel' and Model Access is enabled for Anthropic Claude in Bedrock Console."
+        }
+    except Exception as e:
+        return {
+            "bedrock_active": False,
+            "error_type": type(e).__name__,
+            "message": f"Bedrock invocation notice: {str(e)}",
+            "remediation": "Check network connectivity and AWS region settings."
+        }
 
 if __name__ == "__main__":
     print("=" * 60)

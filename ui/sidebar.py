@@ -107,6 +107,19 @@ def render_sidebar() -> Tuple[Dict[str, Any], bool]:
     btn_label = "🚀 Analyze Climate Risk | వాతావరణ ముప్పును విశ్లేషించండి" if is_te else "🚀 Analyze Climate Risk"
     analyze_btn = st.sidebar.button(btn_label, use_container_width=True, type="primary")
 
+    st.sidebar.markdown("---")
+    with st.sidebar.expander("☁️ AWS Bedrock Integration Status", expanded=False):
+        from farmguard.aws_bedrock import check_aws_credentials_safe, get_bedrock_model_id
+        safe_info = check_aws_credentials_safe()
+        if safe_info["configured"]:
+            st.success(f"🟢 AWS Connected ({safe_info['auth_method']})")
+        else:
+            st.warning("🟡 AWS Credentials Not Configured")
+            st.caption("FarmGuard AI operates in high-reliability Agronomic Science & Tools fallback mode.")
+            st.caption("To connect Amazon Bedrock Claude 3.5 Sonnet, configure `.env` (see `.env.example`).")
+        st.markdown(f"**Region:** `{safe_info['region']}`")
+        st.markdown(f"**Model:** `{get_bedrock_model_id().split('-2024')[0]}`")
+
     profile = {
         "farmer_name": "Smallholder Farmer",
         "location_name": location_name,
@@ -124,3 +137,4 @@ def render_sidebar() -> Tuple[Dict[str, Any], bool]:
     }
 
     return profile, analyze_btn
+

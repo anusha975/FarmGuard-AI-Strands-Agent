@@ -10,3 +10,4 @@ __all__ = [
     "render_sidebar",
     "render_diagnosis_dashboard",
 ]
+
