@@ -381,18 +381,18 @@ if __name__ == "__main__":
     # 2. Test Live Weather Run (English)
     test_profile_live = {
         "farmer_name": "Ramesh Kumar",
-        "location_name": "Anantapur, Andhra Pradesh",
-        "latitude": 14.68,
-        "longitude": 77.60,
-        "crop_name": "Groundnut (Peanut)",
+        "location_name": "Mahabubnagar, Telangana",
+        "latitude": 16.74,
+        "longitude": 78.00,
+        "crop_name": "Maize (Corn)",
         "growth_stage": "Flowering/Anthesis",
-        "soil_type": "Sandy Loam",
+        "soil_type": "Clay / Black Cotton Soil (Vertisol)",
         "irrigation_access": "Rainfed Only",
         "language": "en",
         "demo_mode": False
     }
     
-    print("\n[Test 1] Running Live Assessment for Anantapur (English):")
+    print("\n[Test 1] Running Live Assessment for Mahabubnagar, Telangana (English):")
     res1 = run_farmguard_pipeline(test_profile_live)
     print(f"Status: {res1.get('overall_status')} | CVI: {res1.get('composite_vulnerability_index')}%")
     print(f"Data Source: {res1.get('data_source')}")

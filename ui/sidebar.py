@@ -8,12 +8,13 @@ from farmguard.data.crop_knowledge import CROP_DATABASE, SOIL_PROPERTIES
 from farmguard.data.telugu_translations import TELUGU_CROPS, TELUGU_SOILS, TELUGU_STAGES
 
 BENCHMARKS = {
-    "Anantapur, Andhra Pradesh (Arid Rayalaseema - Groundnut)": {"lat": 14.68, "lon": 77.60, "crop": "Groundnut (Peanut)", "soil": "Sandy Loam", "temp": 36.5, "rain": 0.0, "sm": 14.0},
     "Mahabubnagar, Telangana (Semi-Arid Dryland - Maize)": {"lat": 16.74, "lon": 78.00, "crop": "Maize (Corn)", "soil": "Clay / Black Cotton Soil (Vertisol)", "temp": 37.0, "rain": 2.5, "sm": 18.0},
-    "Guntur, Andhra Pradesh (Coastal/Krishna Basin - Chickpea)": {"lat": 16.30, "lon": 80.44, "crop": "Chickpea (Gram)", "soil": "Clay Loam", "temp": 35.0, "rain": 0.0, "sm": 20.0},
     "Warangal, Telangana (Northern Telangana - Paddy/Rice)": {"lat": 17.96, "lon": 79.59, "crop": "Rice (Lowland / Paddy)", "soil": "Loam", "temp": 34.0, "rain": 12.0, "sm": 32.0},
+    "Nalgonda, Telangana (Dryland / Red Chalkas - Groundnut/Cotton)": {"lat": 17.05, "lon": 79.27, "crop": "Groundnut (Peanut)", "soil": "Sandy Loam", "temp": 36.5, "rain": 0.0, "sm": 14.0},
+    "Anantapur, Andhra Pradesh (Arid Rayalaseema - Groundnut)": {"lat": 14.68, "lon": 77.60, "crop": "Groundnut (Peanut)", "soil": "Sandy Loam", "temp": 36.5, "rain": 0.0, "sm": 14.0},
+    "Guntur, Andhra Pradesh (Coastal/Krishna Basin - Chickpea)": {"lat": 16.30, "lon": 80.44, "crop": "Chickpea (Gram)", "soil": "Clay Loam", "temp": 35.0, "rain": 0.0, "sm": 20.0},
     "Vidarbha, Maharashtra (Semi-Arid Dryland - Chickpea/Cotton)": {"lat": 20.93, "lon": 77.75, "crop": "Chickpea (Gram)", "soil": "Clay / Black Cotton Soil (Vertisol)", "temp": 38.0, "rain": 0.0, "sm": 16.0},
-    "Custom Location (స్వంత స్థానం)": {"lat": 15.00, "lon": 78.00, "crop": "Maize (Corn)", "soil": "Loam", "temp": 34.0, "rain": 5.0, "sm": 20.0}
+    "Custom Location (స్వంత స్థానం)": {"lat": 17.38, "lon": 78.48, "crop": "Maize (Corn)", "soil": "Loam", "temp": 34.0, "rain": 5.0, "sm": 20.0}
 }
 
 def render_sidebar() -> Tuple[Dict[str, Any], bool]:

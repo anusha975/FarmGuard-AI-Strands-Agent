@@ -8,8 +8,8 @@ SAFETY_DISCLAIMER_EN = (
     "FarmGuard AI provides advisory risk evaluations synthesized from meteorological forecasts "
     "and agro-hydrological models (FAO-56). Unforeseen micro-climates, soil depth variations, and pest outbreaks "
     "can alter local conditions. Smallholder farmers must verify these automated recommendations with local "
-    "Agricultural Extension Officers (e.g. Krishi Vigyan Kendra / Rythu Bharosa Kendra / University Agronomists) "
-    "before making major financial, planting, or agrochemical commitments."
+    "Agricultural Extension Officers (e.g. Rythu Vedika / Krishi Vigyan Kendra (KVK) / Agricultural Extension Officers (AEO) / "
+    "PJTSAU University Agronomists / Rythu Bharosa Kendra) before making major financial, planting, or agrochemical commitments."
 )
 
 SAFETY_DISCLAIMER_TE = (
@@ -17,7 +17,7 @@ SAFETY_DISCLAIMER_TE = (
     "ఫామ్‌గార్డ్ ఏఐ (FarmGuard AI) అందించే సలహాలు వాతావరణ అంచనాలు మరియు ఎఫ్.ఎ.ఓ-56 శాస్త్రీయ నమూనాల ఆధారంగా రూపొందించబడ్డాయి. "
     "స్థానిక నేల స్వభావం, భూమి లోతు మరియు తెగుళ్ల తీవ్రతను బట్టి క్షేత్రస్థాయి పరిస్థితులు మారవచ్చు. "
     "రైతు సోదరులు ఏదైనా పెద్ద ఆర్థిక లేదా రసాయన వినియోగ నిర్ణయాలు తీసుకునే ముందు స్థానిక వ్యవసాయ విస్తరణ అధికారులు "
-    "(రైతు భరోసా కేంద్రం / కేవీకే / వ్యవసాయ శాస్త్రవేత్తలు) సలహా తీసుకోవాలని మనవి."
+    "(రైతు వేదిక / ఏఈఓ / కేవీకే / ప్రొఫెసర్ జయశంకర్ తెలంగాణ వ్యవసాయ విశ్వవిద్యాలయ శాస్త్రవేత్తలు / రైతు భరోసా కేంద్రం) సలహా తీసుకోవాలని మనవి."
 )
 
 def get_safety_disclaimer(language: str = "en") -> str:

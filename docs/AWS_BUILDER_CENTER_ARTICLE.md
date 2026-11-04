@@ -183,19 +183,19 @@ FarmGuard AI defines 4 specialized tools using the official `@tool` decorator fr
 
 The application was validated across real agricultural test sites:
 
-### Test Case 1: Anantapur, Andhra Pradesh (Groundnut in Arid Rayalaseema)
-- **Live Coordinates**: 14.68°N, 77.60°E | Sandy Loam | Flowering Stage | Rainfed Only
-- **Data Source**: `🟢 LIVE DATA (Open-Meteo Agro-Weather API)`
-- **Result**: CVI calculated at **14.0% (Normal)**. The model identified sufficient current moisture buffer, advising standard field monitoring and moisture conservation mulching without unnecessary water application.
-
-### Test Case 2: Mahabubnagar, Telangana (Extreme Heatwave Simulation)
-- **Parameters**: 16.74°N, 78.00°E | Maize (Corn) | Flowering/Anthesis | Borewell | Demonstration Mode
-- **Telemetry**: Forecast peak 37.8°C (exceeding maize $T_{crit}$ of 36.0°C), 0.0 mm rainfall, 34.4 mm $ET_0$.
-- **Result**: CVI escalated to **63.5% (High Warning / అధిక ప్రమాదం)**.
+### Test Case 1: Mahabubnagar, Telangana (Semi-Arid Dryland Maize & Heatwave Advisory)
+- **Live Coordinates**: 16.74°N, 78.00°E | Clay / Black Cotton Soil | Flowering/Anthesis Stage | Rainfed/Borewell
+- **Telemetry**: Peak temperature 37.8°C (exceeding maize $T_{crit}$ of 36.0°C), 0.0 mm rainfall, 34.4 mm $ET_0$.
+- **Result**: CVI calculated at **63.5% (High Warning / అధిక ప్రమాదం)** with actionable Telugu interventions.
 - **Immediate Actions Output (Telugu)**:
   1. *🔥 అధిక ఉష్ణోగ్రత హెచ్చరిక*: ఎండ తీవ్రత వల్ల తేమ ఆవిరి కాకుండా మరియు పంట మాడిపోకుండా ఉండటానికి సాయంత్రం లేదా రాత్రి వేళల్లో మాత్రమే తడులు ఇవ్వండి.
   2. *🌸 పూత రక్షణ*: పూత రాలిపోకుండా ఉండేందుకు వేర్ల వద్ద తేమను కాపాడండి.
   3. *🌾 ఆచ్ఛాదన (Mulching)*: నేలపై ఎండుగడ్డితో ఆచ్ఛాదన చేయండి.
+
+### Test Case 2: Warangal & Nalgonda, Telangana (Paddy & Groundnut Moisture Monitoring)
+- **Parameters**: 17.05°N, 79.27°E | Groundnut | Flowering Stage | Red Chalkas / Sandy Loam
+- **Data Source**: `🟢 LIVE DATA (Open-Meteo Agro-Weather API)`
+- **Result**: CVI calculated at **14.0% (Normal / సాధారణం)**. The model identified sufficient current moisture buffer, advising standard field monitoring and moisture conservation mulching without unnecessary water application.
 
 ### Test Suite Execution:
 An automated suite of **62 unit and integration tests** was executed to verify every tool, boundary condition, API fault, and UI component:
@@ -264,7 +264,7 @@ During development, four significant engineering hurdles were encountered and re
 1. **Grounded Tools Beat Unconstrained Generation**: LLMs excel at synthesis, explanation, and translation, but critical agricultural calculations (water depletion, heat thresholds) must be anchored in verified physical formulas (FAO-56) implemented as deterministic tools.
 2. **Strands SDK Simplifies Enterprise Agent Workflows**: The official AWS Strands Agents SDK cleanly handles tool registration, argument schema validation, and Bedrock model connectivity with minimal boilerplate.
 3. **Inclusive Design Requires Low-Bandwidth Channels**: A state-of-the-art AI model is meaningless to a smallholder if it requires a 50MB mobile download or high-speed 4G data. Designing for 2G SMS and regional languages from Day 1 ensures real-world utility.
-4. **Safety Disclaimers are Essential in Responsible AI**: AI models must never pose as absolute agricultural authorities. Providing clear advice to verify with local Krishi Vigyan Kendras (KVKs) before capital expenditure is vital for ethical deployment.
+4. **Safety Disclaimers are Essential in Responsible AI**: AI models must never pose as absolute agricultural authorities. Providing clear advice to verify with local Agricultural Extension Officers (such as Telangana's **Rythu Vedika** network, Krishi Vigyan Kendras (KVKs), and university agronomists) before capital expenditure is vital for ethical, responsible deployment.
 
 ---
 
