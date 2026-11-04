@@ -3,7 +3,7 @@
 **Target Duration**: 2 minutes 45 seconds (165 seconds)  
 **Speaking Rate**: ~130–140 words/minute (Total word count: ~380 words)  
 **Resolution**: 1080p Full HD (Screen Recording with Voiceover)  
-**App URL**: `http://localhost:8501`
+**App URL**: `https://farmguard-ai-strands-agent.onrender.com` (or local `http://localhost:8501`)
 
 ---
 
@@ -33,11 +33,11 @@
 ### [0:45 – 1:10] Scene 3: Farmer Profile Input & Real Telemetry
 * **Visual**:
   - Go to the sidebar.
-  - Select Regional Benchmark: **"Anantapur, Andhra Pradesh (Arid Rayalaseema - Groundnut)"**.
-  - Show latitude `14.68`, longitude `77.60`, crop **Groundnut (Peanut)**, stage **Flowering/Anthesis**, and soil **Sandy Loam**.
-  - Show water source set to **"Rainfed Only"**.
+  - Show the Regional Benchmark: **"Mahabubnagar, Telangana (Semi-Arid Dryland - Maize)"**.
+  - Show latitude `16.74`, longitude `78.00`, crop **Maize (Corn)**, stage **Flowering/Anthesis**, and soil **Clay / Black Cotton Soil**.
+  - Show water source set to **"Rainfed Only"** or **"Borewell"**.
 * **Voiceover**:
-  > *"A farmer or cooperative extension worker simply inputs their village coordinates, crop, phenological stage, and soil texture. Let's select Anantapur in the arid Rayalaseema region of India during the critical groundnut flowering stage."*
+  > *"A farmer or cooperative extension worker simply inputs their village coordinates, crop, phenological stage, and soil texture. Let's select Mahabubnagar in the semi-arid dryland region of Telangana during the critical maize flowering stage."*
 
 ---
 
