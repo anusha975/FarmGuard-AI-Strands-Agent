@@ -1,42 +1,52 @@
 """
-Drought, Heatwave, and Extreme Climate Risk calculation tools for FarmGuard AI.
-Evaluates meteorological drought, atmospheric evaporative deficit, and heat stress.
+Drought, Heatwave, and Extreme Climate Risk Assessment Tool for FarmGuard AI.
+Decorated with @tool for direct execution by the AWS Strands Agent.
 """
-from typing import Dict, Any, Tuple
+import json
+from strands import tool
 from farmguard.data.crop_knowledge import CROP_DATABASE
-from farmguard.models import AgroWeatherData, RiskMetric
+from farmguard.utils.logger import logger
 
-def calculate_climate_risks(
-    weather: AgroWeatherData,
+@tool
+def assess_drought_risk(
+    rainfall_7d_mm: float,
+    et0_7d_mm: float,
+    dry_days: int,
+    max_forecast_temp_c: float,
     crop_name: str,
     growth_stage: str
-) -> Tuple[RiskMetric, RiskMetric, RiskMetric]:
+) -> str:
     """
-    Evaluate 3 distinct climate hazards:
-    1. Meteorological / Hydrological Drought Risk
-    2. Heatwave & Thermal Stress Risk
-    3. Excessive Rainfall / Waterlogging / Flood Risk
+    Assess meteorological drought deficit, thermal heatwave anomaly, and extreme weather risk.
     
-    Returns: (drought_metric, heatwave_metric, flood_metric)
+    Args:
+        rainfall_7d_mm: Cumulative 7-day precipitation in mm
+        et0_7d_mm: Cumulative 7-day FAO-56 reference evapotranspiration in mm
+        dry_days: Number of consecutive days with precipitation < 1.0mm
+        max_forecast_temp_c: Highest predicted temperature in Celsius
+        crop_name: Cultivated crop name
+        growth_stage: Current crop growth stage
+        
+    Returns:
+        JSON string containing drought severity score (0-100), heatwave severity score,
+        flood hazard score, and prioritized hazard classification.
     """
+    logger.info(f"[Tool: assess_drought_risk] Calculating hazards for {crop_name} (Rain={rainfall_7d_mm}mm, ET0={et0_7d_mm}mm)")
+    
     crop_info = CROP_DATABASE.get(crop_name, CROP_DATABASE["Maize (Corn)"])
+    crit_temp = crop_info["critical_temp_max_c"]
     
-    # ---------------- 1. Drought Risk Calculation ----------------
-    # Net water balance = Precipitation - ET0
-    net_water_balance = weather.total_precipitation_7d_mm - weather.total_et0_7d_mm
-    dry_days = weather.consecutive_dry_days
-    
-    # Base drought scoring
-    # If ET0 is 35mm and Rain is 0mm, deficit is -35mm
+    # 1. Drought Balance (Precipitation - ET0)
+    net_balance = rainfall_7d_mm - et0_7d_mm
     drought_score = 0.0
-    if net_water_balance < -25.0:
-        drought_score += 45.0
-    elif net_water_balance < -10.0:
-        drought_score += 25.0
-    elif net_water_balance < 0.0:
+    
+    if net_balance < -25.0:
+        drought_score += 50.0
+    elif net_balance < -10.0:
+        drought_score += 30.0
+    elif net_balance < 0.0:
         drought_score += 15.0
         
-    # Consecutive dry days weight
     if dry_days >= 6:
         drought_score += 35.0
     elif dry_days >= 4:
@@ -44,110 +54,62 @@ def calculate_climate_risks(
     elif dry_days >= 2:
         drought_score += 10.0
         
-    # Stage sensitivity modifier (Flowering/Anthesis is double sensitive)
+    # Flowering/Anthesis phase doubles drought sensitivity
     is_flowering = "flower" in growth_stage.lower() or "anthesis" in growth_stage.lower()
     if is_flowering:
         drought_score = min(100.0, drought_score * 1.25)
         
-    # Crop inherent tolerance discount
+    # Crop drought tolerance discount
     if crop_info["drought_tolerance"] == "Very High":
         drought_score = max(0.0, drought_score * 0.70)
     elif crop_info["drought_tolerance"] == "High":
         drought_score = max(0.0, drought_score * 0.85)
         
     drought_score = round(min(100.0, max(0.0, drought_score)), 1)
+    drought_level = "Critical" if drought_score >= 70 else "High" if drought_score >= 45 else "Moderate" if drought_score >= 25 else "Low"
     
-    if drought_score >= 70:
-        d_level = "Critical"
-        d_impact = f"Severe moisture deficit (Net Balance: {net_water_balance:.1f}mm, {dry_days} dry days). Crop will suffer permanent stunting or yield collapse without immediate intervention."
-    elif drought_score >= 45:
-        d_level = "High"
-        d_impact = f"Moderate-to-high drought stress. Evapotranspiration ({weather.total_et0_7d_mm:.1f}mm) outstrips precipitation ({weather.total_precipitation_7d_mm:.1f}mm)."
-    elif drought_score >= 25:
-        d_level = "Moderate"
-        d_impact = "Mild drying trend. Soil moisture buffer currently preventing acute wilt, but vigilance is required."
-    else:
-        d_level = "Low"
-        d_impact = "Adequate precipitation or low evaporative demand. Low drought hazard for the upcoming 7 days."
-        
-    drought_metric = RiskMetric(
-        category="Drought Risk",
-        score_pct=drought_score,
-        risk_level=d_level,
-        primary_driver=f"7-day Net Water Deficit of {abs(net_water_balance):.1f}mm with {dry_days} dry days",
-        impact_explanation=d_impact,
-        alert_triggered=(d_level in ["High", "Critical"])
-    )
-    
-    # ---------------- 2. Heatwave & Thermal Stress Calculation ----------------
-    crit_temp = crop_info["critical_temp_max_c"]
-    max_forecast = weather.max_forecast_temp_c
-    heat_days = weather.heatwave_days_count
-    
+    # 2. Heatwave Severity
     heat_score = 0.0
-    if max_forecast >= crit_temp + 3.0:
-        heat_score += 55.0
-    elif max_forecast >= crit_temp:
-        heat_score += 40.0
-    elif max_forecast >= crit_temp - 2.0:
-        heat_score += 20.0
+    if max_forecast_temp_c >= crit_temp + 3.0:
+        heat_score = 90.0
+    elif max_forecast_temp_c >= crit_temp:
+        heat_score = 70.0
+    elif max_forecast_temp_c >= crit_temp - 2.0:
+        heat_score = 45.0
+    else:
+        heat_score = 15.0
         
-    heat_score += min(45.0, heat_days * 12.0)
-    
-    if is_flowering and max_forecast >= crit_temp:
+    if is_flowering and max_forecast_temp_c >= crit_temp:
         heat_score = min(100.0, heat_score + 15.0)
         
-    heat_score = round(min(100.0, max(0.0, heat_score)), 1)
+    heat_level = "Critical" if heat_score >= 70 else "High" if heat_score >= 45 else "Moderate" if heat_score >= 25 else "Low"
     
-    if heat_score >= 70:
-        h_level = "Critical"
-        h_impact = f"Extreme thermal anomaly: {heat_days} days exceeding critical threshold ({crit_temp}°C). Risk of pollen abortion, scorching, and rapid desiccation."
-    elif heat_score >= 45:
-        h_level = "High"
-        h_impact = f"Elevated heat stress forecast reaching {max_forecast}°C. High vapor pressure deficit will accelerate moisture loss."
-    elif heat_score >= 20:
-        h_level = "Moderate"
-        h_impact = "Warm daytime conditions, manageable with adequate rootzone moisture."
-    else:
-        h_level = "Low"
-        h_impact = f"Temperatures remain within optimal agronomic range ({crop_info['optimal_temp_range'][0]}-{crop_info['optimal_temp_range'][1]}°C)."
-        
-    heatwave_metric = RiskMetric(
-        category="Heatwave & Thermal Stress",
-        score_pct=heat_score,
-        risk_level=h_level,
-        primary_driver=f"Peak temperature {max_forecast}°C vs crop threshold {crit_temp}°C ({heat_days} heatwave days)",
-        impact_explanation=h_impact,
-        alert_triggered=(h_level in ["High", "Critical"])
-    )
-    
-    # ---------------- 3. Heavy Rainfall & Waterlogging Risk ----------------
-    rain_7d = weather.total_precipitation_7d_mm
+    # 3. Flood / Excessive Rain Hazard
     flood_score = 0.0
-    if rain_7d > 120.0:
-        flood_score = 90.0
-        f_level = "Critical"
-        f_impact = f"Torrential downpour ({rain_7d:.1f}mm in 7 days). High hazard of waterlogging, root asphyxiation, and topsoil erosion."
-    elif rain_7d > 70.0:
-        flood_score = 60.0
-        f_level = "High"
-        f_impact = f"Heavy localized rainfall ({rain_7d:.1f}mm). Watch field drainage channels and avoid fertilizer leaching."
-    elif rain_7d > 35.0:
-        flood_score = 30.0
-        f_level = "Moderate"
-        f_impact = "Moderate rains expected. Beneficial for rainfed soil recharge, minimal waterlogging hazard."
+    if rainfall_7d_mm > 100.0:
+        flood_score = 85.0
+    elif rainfall_7d_mm > 60.0:
+        flood_score = 55.0
+    elif rainfall_7d_mm > 30.0:
+        flood_score = 25.0
     else:
-        flood_score = 10.0
-        f_level = "Low"
-        f_impact = f"Light or zero precipitation ({rain_7d:.1f}mm). No waterlogging or runoff risk."
-        
-    flood_metric = RiskMetric(
-        category="Heavy Rainfall & Flood Risk",
-        score_pct=flood_score,
-        risk_level=f_level,
-        primary_driver=f"Forecasted 7-day cumulative rainfall of {rain_7d:.1f}mm",
-        impact_explanation=f_impact,
-        alert_triggered=(f_level in ["High", "Critical"])
-    )
+        flood_score = 5.0
+    flood_level = "Critical" if flood_score >= 70 else "High" if flood_score >= 45 else "Moderate" if flood_score >= 25 else "Low"
     
-    return drought_metric, heatwave_metric, flood_metric
+    # Composite vulnerability index
+    composite_cvi = round(0.40 * drought_score + 0.35 * heat_score + 0.25 * flood_score, 1)
+    
+    result = {
+        "status": "success",
+        "crop_evaluated": crop_name,
+        "critical_temperature_limit_c": crit_temp,
+        "drought_score_pct": drought_score,
+        "drought_level": drought_level,
+        "heatwave_score_pct": heat_score,
+        "heatwave_level": heat_level,
+        "flood_score_pct": flood_score,
+        "flood_level": flood_level,
+        "composite_vulnerability_index": composite_cvi,
+        "primary_hazard": "Drought" if drought_score >= max(heat_score, flood_score) else "Heatwave" if heat_score >= flood_score else "Heavy Rain"
+    }
+    return json.dumps(result)

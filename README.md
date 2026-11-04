@@ -170,3 +170,4 @@ Open your browser at `http://localhost:8501`.
 
 ## 📄 8. License
 Distributed under the MIT License. See `LICENSE` for details.
+

@@ -1,5 +1,5 @@
 """
-Pydantic schemas and data structures for FarmGuard AI.
+Pydantic schemas and data models for FarmGuard AI.
 """
 from typing import List, Dict, Optional, Any
 from pydantic import BaseModel, Field
@@ -10,72 +10,77 @@ class FarmProfile(BaseModel):
     latitude: float = Field(..., description="Decimal latitude (-90 to 90)")
     longitude: float = Field(..., description="Decimal longitude (-180 to 180)")
     crop_name: str = Field(..., description="Cultivated crop name")
-    growth_stage: str = Field(
-        default="Vegetative",
-        description="Growth stage: Seedling, Vegetative, Flowering/Anthesis, Grain Filling, Maturity"
-    )
-    soil_type: str = Field(
-        default="Loam",
-        description="Soil texture: Sandy Soil, Sandy Loam, Loam, Clay Loam, Clay / Black Cotton Soil, Silt Loam"
-    )
+    growth_stage: str = Field(default="Flowering/Anthesis")
+    soil_type: str = Field(default="Loam")
     field_size_hectares: float = Field(default=1.5, ge=0.1, le=100.0)
-    irrigation_access: str = Field(
-        default="Rainfed Only",
-        description="Irrigation mode: Rainfed Only, Borewell, Drip System, Canal/Furrow, Farm Pond"
-    )
+    irrigation_access: str = Field(default="Rainfed Only")
+    language: str = Field(default="en", description="'en' for English, 'te' for Telugu")
 
-class DailyAgroForecast(BaseModel):
+class DailyForecastRecord(BaseModel):
     date: str
     temp_max: float
     temp_min: float
-    precipitation_sum: float
-    et0_fao_evapotranspiration: float
-    soil_moisture_0_7cm: float
-    soil_moisture_7_28cm: float
+    precip_mm: float
+    et0_mm: float
+    sm_0_7cm: float
+    sm_7_28cm: float
 
 class AgroWeatherData(BaseModel):
     location: str
     latitude: float
     longitude: float
-    elevation_m: float = 0.0
+    is_simulated: bool = False
+    data_source: str = "🟢 LIVE DATA (Open-Meteo Agro-Weather API)"
     current_temp_c: float
     max_forecast_temp_c: float
     min_forecast_temp_c: float
     total_precipitation_7d_mm: float
     total_et0_7d_mm: float
-    avg_soil_moisture_0_7cm: float
-    avg_soil_moisture_7_28cm: float
-    consecutive_dry_days: int
+    net_water_balance_mm: float
+    avg_soil_moisture_pct: float
     heatwave_days_count: int
-    daily_forecasts: List[DailyAgroForecast] = []
-    forecast_summary: str = ""
+    consecutive_dry_days: int
+    daily_forecasts: List[DailyForecastRecord] = []
 
-class RiskMetric(BaseModel):
-    category: str
-    score_pct: float = Field(ge=0.0, le=100.0)
-    risk_level: str  # "Low", "Moderate", "High", "Critical"
-    primary_driver: str
-    impact_explanation: str
-    alert_triggered: bool = False
+class SoilHydrologyData(BaseModel):
+    crop_name: str
+    soil_type: str
+    effective_root_depth_m: float
+    field_capacity_pct: float
+    permanent_wilting_point_pct: float
+    current_moisture_pct: float
+    total_available_water_taw_mm: float
+    readily_available_water_raw_mm: float
+    rootzone_depletion_mm: float
+    crop_water_stress_index_cwsi: float
+    stress_level: str
+    irrigation_needed_mm: float
+    soil_management_tip: str
+    data_source: str
 
-class IrrigationDayAdvice(BaseModel):
-    date: str
-    day_name: str
-    recommendation: str  # "Irrigate", "Withhold Irrigation", "Light Evening Splash"
-    volume_liters_or_mm: str
-    rationale: str
+class RiskAssessmentData(BaseModel):
+    drought_score_pct: float
+    drought_level: str
+    heatwave_score_pct: float
+    heatwave_level: str
+    flood_score_pct: float
+    flood_level: str
+    composite_vulnerability_index: float
+    primary_hazard: str
+
+# Backward compatibility alias
+RiskMetric = RiskAssessmentData
 
 class FarmGuardDiagnosis(BaseModel):
     farm_profile: FarmProfile
-    weather_summary: AgroWeatherData
-    drought_risk: RiskMetric
-    heatwave_risk: RiskMetric
-    soil_moisture_stress: RiskMetric
-    rainfall_flood_risk: RiskMetric
-    composite_vulnerability_index: float  # 0 to 100
-    overall_status: str  # "Normal", "Advisory Active", "High Warning", "Emergency"
-    immediate_actions_today: List[str]
-    irrigation_schedule_7d: List[IrrigationDayAdvice]
-    agronomic_resilience_recommendations: List[str]
+    weather_data: AgroWeatherData
+    soil_data: SoilHydrologyData
+    risk_assessment: RiskAssessmentData
+    is_simulated: bool
+    data_source_badge: str
+    overall_status: str
+    immediate_actions: List[str]
+    resilience_recommendations: List[str]
     sms_alert_message: str
-    agent_reasoning_trace: List[Dict[str, str]] = []
+    safety_disclaimer: str
+    tool_execution_trace: List[Dict[str, Any]] = []
