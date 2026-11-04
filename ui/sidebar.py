@@ -19,7 +19,12 @@ BENCHMARKS = {
 
 def render_sidebar() -> Tuple[Dict[str, Any], bool]:
     """Render the sidebar inputs and return (profile_dict, analyze_button_clicked)."""
-    st.sidebar.image("https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=400&q=80", use_container_width=True)
+    import os
+    cover_img = "assets/farmguard_grandfather_grandson_cover.jpg"
+    if os.path.exists(cover_img):
+        st.sidebar.image(cover_img, use_container_width=True)
+    else:
+        st.sidebar.image("https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=400&q=80", use_container_width=True)
     st.sidebar.markdown("## 🌾 ఫామ్‌గార్డ్ | Farm Profile")
 
     # 1. English / Telugu Selection
