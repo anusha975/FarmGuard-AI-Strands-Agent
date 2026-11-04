@@ -33,9 +33,18 @@ env/
 
 # Environment Variables & Secrets
 .env
-.env.local
+.env.*
+!.env.example
 *.pem
 *.key
+*.aws
+.aws/
+credentials
+*secret*
+
+# Logs
+*.log
+.system_generated/
 
 # IDE & Editor Settings
 .vscode/
