@@ -138,3 +138,4 @@ def calculate_drought_risk(
         "flood_risk_level": f_level,
         "composite_vulnerability_index": round(0.40 * drought_score + 0.35 * heat_score + 0.25 * flood_score, 1)
     })
+

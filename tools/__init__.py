@@ -12,3 +12,4 @@ __all__ = [
     "calculate_drought_risk",
     "get_farming_recommendations",
 ]
+

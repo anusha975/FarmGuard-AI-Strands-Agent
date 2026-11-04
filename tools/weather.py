@@ -183,3 +183,4 @@ def get_weather_forecast(
             "error_type": "NetworkError",
             "message": f"Failed to contact Open-Meteo live API: {str(e)}. Please check internet connectivity or enable demo_mode."
         })
+

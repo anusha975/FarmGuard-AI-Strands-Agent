@@ -131,3 +131,4 @@ def get_farming_recommendations(
         "sms_dispatch": sms,
         "safety_disclaimer": disclaimer
     }, ensure_ascii=False)
+
