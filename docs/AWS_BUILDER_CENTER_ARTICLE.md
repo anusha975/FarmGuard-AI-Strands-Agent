@@ -275,9 +275,16 @@ Explore the complete source code, automated test suites, and documentation on Gi
 
 ---
 
-## 14. Demo Video Link
+## 14. Live Cloud Deployed Application
 
-Watch the complete demonstration walkthrough of FarmGuard AI in action, showcasing live Open-Meteo telemetry ingestion, FAO-56 soil water balance computation, Telugu localization, and the Streamlit interface:  
+Test the live interactive dashboard directly in your browser:  
+👉 **[https://farmguard-ai-strands-agent.onrender.com](https://farmguard-ai-strands-agent.onrender.com)**
+
+---
+
+## 15. Demo Video Link
+
+Watch the complete demonstration walkthrough of FarmGuard AI in action, showcasing live telemetry ingestion, FAO-56 soil water balance computation, Telugu localization, and the Streamlit interface:  
 👉 **[FarmGuard AI - Live Video Demonstration](https://youtu.be/YOUR_DEMO_VIDEO_LINK)** *(Replace with your YouTube/Loom video link)*
 
 ---
