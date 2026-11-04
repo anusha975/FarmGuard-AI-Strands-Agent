@@ -92,6 +92,12 @@
   - Visual terminal logs in user workspace demonstrate completion of Modules 1 through 5 of the official AWS Builder Center workshop ("Building AI Agents with Strands SDK").
   - Module 5 terminal log shows `CustomerService_default_my_agent-zq9St42XSE` successfully deployed to AgentCore Runtime with CloudFormation templates, and invoked interactively with payload `{"prompt": "Hi, I'm customer C-1001. What are my recent orders?"}` returning `Response 200 application/json` with `Session ID: 639c7ba2-ad91-4d90-b45d-91463ef89d43`.
 
+### 11. Public GitHub Repository Live & Accessible
+- **Status**: 🟢 **VERIFIED COMPLETE**
+- **Evidence**:
+  - Pushed to `https://github.com/anusha975/FarmGuard-AI-Strands-Agent.git` on branch `main`.
+  - HTTP check returned `200 OK` (no longer 404). All project files, documentation, and test suites are publicly accessible.
+
 ---
 
 ## ❌ Section 2: Failed Items
@@ -102,27 +108,16 @@
 
 ## ⏳ Section 3: Pending External Items (Awaiting User Action & Approval)
 
-The following 3 items are ready locally but require user action on external platforms (GitHub, YouTube, AWS Builder Center):
+The following 2 items are ready locally but require user action on external platforms (YouTube, AWS Builder Center):
 
-### 1. Public GitHub Repository Creation & Push
-- **Current State**: 🟡 **PENDING REPOSITORY CREATION**
-- **Finding**: Visiting `https://github.com/anusha975/FarmGuard-AI-Strands-Agent` returned GitHub `404 Not Found` because the repository has not yet been created under the user's GitHub account.
-- **Exact Action Needed**:
-  1. Open [https://github.com/new](https://github.com/new) in browser.
-  2. Set repository name to `FarmGuard-AI-Strands-Agent`.
-  3. Set visibility to **Public**.
-  4. Leave "Add README", ".gitignore", and "License" **UNCHECKED**.
-  5. Click **Create repository**.
-  6. Run `git remote add origin https://github.com/anusha975/FarmGuard-AI-Strands-Agent.git` and `git push -u origin main`.
-
-### 2. Builder Center Article Publication
+### 1. Builder Center Article Publication
 - **Current State**: 🟡 **PENDING USER SUBMISSION**
 - **Finding**: The article is fully authored in `docs/AWS_BUILDER_CENTER_ARTICLE.md` (and artifact) with all 14 required sections and zero fabricated metrics. It is pending user review and publishing on the AWS Builder Center portal.
 - **Exact Action Needed**:
   1. Review `docs/AWS_BUILDER_CENTER_ARTICLE.md`.
   2. Copy and paste into the AWS Builder Center / Devpost submission portal.
 
-### 3. Public Demo Video Recording (< 3 Minutes)
+### 2. Public Demo Video Recording (< 3 Minutes)
 - **Current State**: 🟡 **PENDING RECORDING & UPLOAD**
 - **Finding**: A timed 2m 45s shot-by-shot script has been authored in `docs/DEMO_VIDEO_SCRIPT.md`. The video file itself must be recorded by the user.
 - **Exact Action Needed**:
