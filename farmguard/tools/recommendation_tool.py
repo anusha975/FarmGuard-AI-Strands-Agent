@@ -123,3 +123,4 @@ def generate_farming_recommendations(
         "sms_dispatch": sms
     }
     return json.dumps(result, ensure_ascii=False)
+

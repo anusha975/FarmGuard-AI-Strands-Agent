@@ -31,3 +31,4 @@ def validate_coordinates(lat: float, lon: float) -> Tuple[bool, str]:
     if not (-180.0 <= lon <= 180.0):
         return False, f"Longitude {lon} is out of valid bounds [-180, 180]."
     return True, "Valid"
+

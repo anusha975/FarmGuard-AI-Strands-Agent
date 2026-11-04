@@ -99,3 +99,4 @@ def analyze_soil(
         "explanation": desc
     }
     return json.dumps(result)
+
