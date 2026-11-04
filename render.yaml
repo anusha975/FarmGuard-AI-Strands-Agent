@@ -13,3 +13,4 @@ services:
         value: live
       - key: AWS_REGION
         value: us-east-1
+
