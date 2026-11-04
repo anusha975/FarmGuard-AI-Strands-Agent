@@ -283,3 +283,4 @@ Watch the complete demonstration walkthrough of FarmGuard AI in action, showcasi
 ---
 
 *Thank you to AWS Builder Center, the Amazon Bedrock team, and the AWS Strands Agents SDK community for organizing this hackathon!*
+

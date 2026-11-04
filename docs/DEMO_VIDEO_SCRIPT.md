@@ -89,3 +89,4 @@
 2. **Audio**: Use a headset or external microphone in a quiet room to eliminate background noise.
 3. **Cursor**: Move the mouse smoothly to direct the viewer's eye to each metric card and tab.
 4. **Duration Check**: Rehearse once with a stopwatch to ensure you finish between 2:30 and 2:50.
+
