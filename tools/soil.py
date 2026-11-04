@@ -35,20 +35,33 @@ def analyze_soil_moisture(
             "message": f"Invalid current_moisture_pct: {current_moisture_pct}. Must be between 0.0% and 100.0%."
         })
 
-    # Normalize soil and crop lookups
+    # Normalize soil lookups (exact match first, then substring fallback)
     matched_soil = None
+    clean_soil = soil_type.strip().lower()
     for s_name in SOIL_PROPERTIES:
-        if s_name.lower() in soil_type.lower() or soil_type.lower() in s_name.lower():
+        if s_name.lower() == clean_soil:
             matched_soil = s_name
             break
     if not matched_soil:
+        for s_name in SOIL_PROPERTIES:
+            if clean_soil in s_name.lower():
+                matched_soil = s_name
+                break
+    if not matched_soil:
         matched_soil = "Loam"  # Sensible agricultural fallback with notice
 
+    # Normalize crop lookups (exact match first, then substring fallback)
     matched_crop = None
+    clean_crop = crop_name.strip().lower()
     for c_name in CROP_DATABASE:
-        if c_name.lower() in crop_name.lower() or crop_name.lower() in c_name.lower():
+        if c_name.lower() == clean_crop:
             matched_crop = c_name
             break
+    if not matched_crop:
+        for c_name in CROP_DATABASE:
+            if clean_crop in c_name.lower() or c_name.lower() in clean_crop:
+                matched_crop = c_name
+                break
     if not matched_crop:
         matched_crop = "Maize (Corn)"
 

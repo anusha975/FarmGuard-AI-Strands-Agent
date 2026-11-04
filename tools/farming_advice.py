@@ -42,10 +42,16 @@ def get_farming_recommendations(
     """
     is_te = language.lower() in ["te", "telugu"]
     matched_crop = None
+    clean_crop = crop_name.strip().lower()
     for c_name in CROP_DATABASE:
-        if c_name.lower() in crop_name.lower() or crop_name.lower() in c_name.lower():
+        if c_name.lower() == clean_crop:
             matched_crop = c_name
             break
+    if not matched_crop:
+        for c_name in CROP_DATABASE:
+            if clean_crop in c_name.lower() or c_name.lower() in clean_crop:
+                matched_crop = c_name
+                break
     if not matched_crop:
         matched_crop = "Maize (Corn)"
 

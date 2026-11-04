@@ -157,7 +157,9 @@ def get_weather_forecast(
 
         total_p = sum(d["precip_mm"] for d in daily_records)
         total_et0 = sum(d["et0_mm"] for d in daily_records)
-        curr_temp = data.get("current", {}).get("temperature_2m", t_max_list[0] if t_max_list else 30.0)
+        sanitized_tmax = [d["temp_max_c"] for d in daily_records]
+        sanitized_tmin = [d["temp_min_c"] for d in daily_records]
+        curr_temp = data.get("current", {}).get("temperature_2m", sanitized_tmax[0] if sanitized_tmax else 30.0)
 
         return json.dumps({
             "status": "success",
@@ -166,8 +168,8 @@ def get_weather_forecast(
             "location": location_name,
             "coordinates": {"lat": latitude, "lon": longitude},
             "current_temp_c": round(curr_temp, 1),
-            "max_forecast_temp_c": round(max(t_max_list), 1) if t_max_list else 30.0,
-            "min_forecast_temp_c": round(min(t_min_list), 1) if t_min_list else 20.0,
+            "max_forecast_temp_c": round(max(sanitized_tmax), 1) if sanitized_tmax else 30.0,
+            "min_forecast_temp_c": round(min(sanitized_tmin), 1) if sanitized_tmin else 20.0,
             "total_precipitation_7d_mm": round(total_p, 1),
             "total_et0_7d_mm": round(total_et0, 1),
             "net_water_balance_mm": round(total_p - total_et0, 1),

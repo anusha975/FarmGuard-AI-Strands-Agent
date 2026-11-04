@@ -172,12 +172,18 @@ def run_farmguard_pipeline(profile: Dict[str, Any]) -> Dict[str, Any]:
     })
 
     # 3. Tool 2: Soil Moisture & Rootzone Physics
-    # Use average 0-28cm moisture from weather forecast
-    daily_list = weather_data.get("daily_forecasts", [])
-    if daily_list:
-        avg_sm = sum((d.get("soil_moisture_0_7cm_pct", 15.0) + d.get("soil_moisture_7_28cm_pct", 20.0)) / 2.0 for d in daily_list) / len(daily_list)
+    # Use farmer observed soil moisture if provided, otherwise average 0-28cm weather telemetry
+    if profile.get("observed_sm_pct") is not None:
+        try:
+            avg_sm = float(profile["observed_sm_pct"])
+        except (ValueError, TypeError):
+            avg_sm = 18.0
     else:
-        avg_sm = 18.0
+        daily_list = weather_data.get("daily_forecasts", [])
+        if daily_list:
+            avg_sm = sum((d.get("soil_moisture_0_7cm_pct", 15.0) + d.get("soil_moisture_7_28cm_pct", 20.0)) / 2.0 for d in daily_list) / len(daily_list)
+        else:
+            avg_sm = 18.0
 
     soil_raw = analyze_soil_moisture(
         soil_type=soil_type,
@@ -186,6 +192,14 @@ def run_farmguard_pipeline(profile: Dict[str, Any]) -> Dict[str, Any]:
         current_moisture_pct=avg_sm
     )
     soil_data = json.loads(soil_raw)
+    if soil_data.get("status") == "error":
+        return {
+            "status": "error",
+            "error_type": soil_data.get("error_type", "ToolError"),
+            "message": f"Soil analysis error: {soil_data.get('message')}",
+            "tool_traces": tool_traces + [{"tool": "analyze_soil_moisture", "status": "failed", "error": soil_data.get("message")}]
+        }
+
     tool_traces.append({
         "tool": "analyze_soil_moisture",
         "status": "success",
@@ -194,15 +208,29 @@ def run_farmguard_pipeline(profile: Dict[str, Any]) -> Dict[str, Any]:
     })
 
     # 4. Tool 3: Drought and Thermal Risk Assessment
+    obs_temp = profile.get("observed_temp_c")
+    max_t = float(obs_temp) if obs_temp is not None else weather_data.get("max_forecast_temp_c", 34.0)
+
+    obs_rain = profile.get("observed_rain_mm")
+    rain_val = float(obs_rain) if obs_rain is not None else weather_data.get("total_precipitation_7d_mm", 0.0)
+
     drought_raw = calculate_drought_risk(
-        rainfall_7d_mm=weather_data.get("total_precipitation_7d_mm", 0.0),
+        rainfall_7d_mm=rain_val,
         et0_7d_mm=weather_data.get("total_et0_7d_mm", 35.0),
         dry_days=weather_data.get("consecutive_dry_days", 3),
-        max_temp_c=weather_data.get("max_forecast_temp_c", 34.0),
+        max_temp_c=max_t,
         crop_name=crop_name,
         growth_stage=growth_stage
     )
     drought_data = json.loads(drought_raw)
+    if drought_data.get("status") == "error":
+        return {
+            "status": "error",
+            "error_type": drought_data.get("error_type", "ToolError"),
+            "message": f"Drought assessment error: {drought_data.get('message')}",
+            "tool_traces": tool_traces + [{"tool": "calculate_drought_risk", "status": "failed", "error": drought_data.get("message")}]
+        }
+
     tool_traces.append({
         "tool": "calculate_drought_risk",
         "status": "success",
@@ -222,6 +250,14 @@ def run_farmguard_pipeline(profile: Dict[str, Any]) -> Dict[str, Any]:
         language=language
     )
     recom_data = json.loads(recom_raw)
+    if recom_data.get("status") == "error":
+        return {
+            "status": "error",
+            "error_type": recom_data.get("error_type", "ToolError"),
+            "message": f"Farming recommendations error: {recom_data.get('message')}",
+            "tool_traces": tool_traces + [{"tool": "get_farming_recommendations", "status": "failed", "error": recom_data.get("message")}]
+        }
+
     tool_traces.append({
         "tool": "get_farming_recommendations",
         "status": "success",

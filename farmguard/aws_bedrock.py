@@ -226,3 +226,4 @@ def get_iam_policy_template() -> Dict[str, Any]:
             }
         ]
     }
+
